@@ -1,0 +1,23 @@
+title: Control Avanzado
+description: Modelado, control LQR y observación de estados del péndulo Qube-Servo 3
+remote_theme: just-the-docs/just-the-docs
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+# Sitio de Control Avanzado en GitHub Pages.
+url: "https://JARVO11.github.io"
+baseurl: "/Control-Avanzado"
+lang: es
+search_enabled: true
+search:
+  heading_level: 2
+permalink: pretty
+exclude:
+  - README.md
+  - PUBLICAR.md
+  - PROCEDENCIA.md
+  - vista-local
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - node_modules
