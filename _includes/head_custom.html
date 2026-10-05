@@ -1,0 +1,36 @@
+<link rel="stylesheet" href="{{ '/assets/css/custom.css' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M%S' }}">
+<link rel="icon" href="{{ '/assets/img/favicon.ico' | relative_url }}" sizes="any">
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const titleLink = document.querySelector('.site-title');
+    if (!titleLink || titleLink.querySelector('img')) return;
+    const img = document.createElement('img');
+    img.src = "{{ '/assets/img/logotipo.png' | relative_url }}";
+    img.alt = "Logo";
+    img.className = "site-logo";
+    titleLink.prepend(img);
+  });
+</script>
+
+<script>
+window.MathJax = {
+  tex: {inlineMath: [['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']]},
+  options: {
+    skipHtmlTags: ['script','noscript','style','textarea','pre','code'],
+    // Compatibilidad con la salida math/tex de Kramdown, además de $$.
+    // https://docs.mathjax.org/en/v3.2/upgrading/v2.html
+    renderActions: {findScript: [11, function (doc) {
+      document.querySelectorAll('script[type^="math/tex"]').forEach(function (element) {
+        var display = element.type.includes('mode=display');
+        var item = new doc.options.MathItem(element.textContent, doc.inputJax[0], display);
+        var anchor = document.createTextNode('');
+        element.replaceWith(anchor);
+        item.start = {node: anchor, delim: '', n: 0};
+        item.end = {node: anchor, delim: '', n: 0};
+        doc.math.push(item);
+      });
+    }, '']}
+  }
+};
+</script>
+<script defer src="{{ '/assets/js/mathjax/tex-svg.js' | relative_url }}"></script>
