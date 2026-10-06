@@ -17,8 +17,8 @@ permalink: /
   </div>
   <figure class="lab-panel">
     <div class="lab-panel__meta"><span>PLATAFORMA 01</span><span>QUANSER</span></div>
-    <img src="{{ '/assets/img/pendulo/qube3-consigna.png' | relative_url }}" alt="Péndulo rotatorio Qube-Servo 3, imagen de referencia de la consigna">
-    <figcaption><strong>Qube-Servo 3</strong><br>Imagen de referencia de la consigna; las pruebas del equipo se documentan por separado.</figcaption>
+    <img src="{{ '/assets/img/pendulo/Pendulo.jpg' | relative_url }}" alt="Péndulo Qube-Servo 3 durante la práctica">
+    <figcaption><strong>Qube-Servo 3</strong><br>Nuestro montaje de laboratorio: control LQR y estimación de velocidades.</figcaption>
   </figure>
 </section>
 
@@ -33,13 +33,13 @@ permalink: /
 <article class="project-feature">
   <div class="project-feature__number">01 /</div>
   <div>
-    <span class="status-chip">DOCUMENTACIÓN EN DESARROLLO</span>
+    <span class="status-chip">CONTROL LQR · PRUEBA EN LABORATORIO</span>
     <h3>Péndulo invertido</h3>
-    <p>Balance del Qube-Servo 3 mediante retroalimentación LQR y diseño de un observador. Desarrollo matemático, implementación en Simulink y seguimiento de las evidencias de laboratorio.</p>
+    <p>Balance del Qube-Servo 3 mediante retroalimentación LQR y diseño de un observador. Desarrollo matemático, implementación en Simulink y pruebas en laboratorio.</p>
     <div class="project-feature__links">
       <a href="{{ '/pendulo-qube3/' | relative_url }}">Ver proyecto completo →</a>
-      <a href="{{ '/pendulo-requisitos/' | relative_url }}">Revisar entregables</a>
-      <a href="{{ '/pendulo-resultados/' | relative_url }}">Resultados y pendientes</a>
+      <a href="{{ '/pendulo-requisitos/' | relative_url }}">Objetivos del proyecto</a>
+      <a href="{{ '/pendulo-resultados/' | relative_url }}">Resultados y video</a>
     </div>
   </div>
 </article>
@@ -55,4 +55,4 @@ permalink: /
   <a href="{{ '/pendulo-archivos/' | relative_url }}"><b>06</b><span>Archivos y reproducción</span><em>↗</em></a>
 </div>
 
-<p class="next-project-note">Este portafolio crecerá con los próximos proyectos de Control Avanzado. Las evidencias experimentales aún no recibidas se identifican dentro de cada sección.</p>
+<p class="next-project-note">En este portafolio presentamos el desarrollo de nuestros proyectos de Control Avanzado: del modelo matemático a las pruebas del sistema físico.</p>

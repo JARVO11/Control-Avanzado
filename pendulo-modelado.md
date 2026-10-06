@@ -15,15 +15,15 @@ Se considera el equilibrio vertical superior. El brazo gira un ángulo θ y el p
 
 $$x=\begin{bmatrix}\theta&\alpha&\dot\theta&\dot\alpha\end{bmatrix}^{T},\qquad u=V_m.$$
 
-Los ángulos se expresan en radianes, las velocidades en rad/s y la entrada en voltios. θ = 0 es la referencia del brazo y α = 0 la posición superior. El modelo usa encoders para medir ambos ángulos; las velocidades que realimentan el LQR se obtienen con filtros.
+Los ángulos se expresan en radianes, las velocidades en rad/s y la entrada en voltios. θ = 0 es la referencia del brazo y α = 0 la posición superior. El modelo usa encoders para medir ambos ángulos; las velocidades que realimentan el LQR se obtienen mediante dos canales del observador.
 
 $$y=Cx+Du,\quad C=\begin{bmatrix}1&0&0&0\\0&1&0&0\end{bmatrix},\quad D=\begin{bmatrix}0\\0\end{bmatrix}.$$
 
-C y D se explicitan aquí para representar los ángulos medidos; el script recibido solo calcula A y B.
+Las matrices C y D representan los ángulos medidos. En `ProyectoControlFinal.m` calculamos A y B para diseñar el controlador.
 
 ## 2. Parámetros nominales
 
-Valores del cuadro 2 del PDF y del script recibido; **no son una identificación experimental**.
+Usamos los valores nominales del cuadro 2 de las especificaciones y del script `ProyectoControlFinal.m`. Estos parámetros describen el modelo de referencia del equipo.
 
 | Parámetro | Símbolo | Valor | Unidad |
 |---|---|---:|---|
@@ -43,7 +43,7 @@ Valores del cuadro 2 del PDF y del script recibido; **no son una identificación
 
 ## 3. Del balance mecánico al modelo lineal
 
-Se adopta la convención de signos que produce las matrices de la consigna. Para una aproximación de varilla delgada, defínanse h = mp l r, H = Jr + mp r². Una energía cinética y potencial compatibles con esa convención son:
+Se adopta la convención de signos que produce las matrices de las especificaciones. Para una aproximación de varilla delgada, defínanse h = mp l r, H = Jr + mp r². Una energía cinética y potencial compatibles con esa convención son:
 
 $$T=\tfrac12(H+J_p\sin^2\alpha)\dot\theta^2+\tfrac12J_p\dot\alpha^2-h\cos\alpha\dot\theta\dot\alpha,\qquad U=m_pgl\cos\alpha.$$
 
@@ -68,7 +68,7 @@ El torque eléctrico, despreciando la dinámica de la inductancia de armadura, s
 
 $$i=\frac{V_m-k_m\dot\theta}{R_m},\qquad \tau=k_ti.$$
 
-En los parámetros suministrados kt = km numéricamente. Por ello el script usa km en el término de entrada y km² en el amortiguamiento eléctrico. Si estas constantes se cambian por separado, deben usarse kt y kt km respectivamente.
+En los parámetros del modelo kt = km numéricamente. Por ello el script usa km en el término de entrada y km² en el amortiguamiento eléctrico. Si estas constantes se cambian por separado, deben usarse kt y kt km respectivamente.
 
 ## 4. Despeje de aceleraciones
 
@@ -76,7 +76,7 @@ El determinante de la matriz de inercia es:
 
 $$J_t=HJ_p-h^2=(J_r+m_pr^2)J_p-m_p^2l^2r^2=3.62296758\times10^{-8}.$$
 
-Aunque la consigna lo denomina inercia total equivalente, Jt tiene unidades de (kg·m²)² por ser un determinante. La inversa es:
+Jt tiene unidades de (kg·m²)² por ser el determinante de la matriz de inercia. La inversa es:
 
 $$M^{-1}=\frac{1}{J_t}\begin{bmatrix}J_p&h\\h&H\end{bmatrix}.$$
 
@@ -100,8 +100,8 @@ El polo positivo de A, aproximadamente +12.1485 s⁻¹, confirma la inestabilida
 $$\operatorname{rango}[B\ AB\ A^2B\ A^3B]=4,\qquad
 \operatorname{rango}\begin{bmatrix}C\\CA\\CA^2\\CA^3\end{bmatrix}=4.$$
 
-El modelo nominal es controlable y observable con ambos ángulos medidos. Estos cálculos algebraicos se verificaron independientemente con las mismas matrices; no constituyen una validación física.
+El modelo nominal es controlable y observable con ambos ángulos medidos. El rango coincide con el número de estados, que es cuatro. Por tanto, el modelo permite controlar sus cuatro estados y reconstruirlos a partir de las salidas elegidas.
 
 ## 6. Alcance temporal
 
-El diseño recibido es **continuo**. El archivo Simulink usa integración `ode1` con paso 0.002 s. No se sustituyeron A/B por matrices discretas ni se cambió `lqr` por `dlqr`: documentar un diseño discreto exigiría discretizar y volver a verificar el controlador.
+Diseñamos el controlador en **tiempo continuo**, utilizando `lqr(A,B,Q,R)`. En Simulink ejecutamos el modelo con integración `ode1` y paso fijo de 0.002 s. Este paso de ejecución no cambia las matrices continuas A y B del diseño.

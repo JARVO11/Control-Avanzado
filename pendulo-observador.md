@@ -9,11 +9,11 @@ parent: "Péndulo Qube-Servo 3"
 
 # Diseño y ecuaciones del observador
 
-## 1. Estructura exigida
+## 1. Estructura del observador
 
-La figura 3 de la consigna utiliza únicamente la salida angular medida. No incorpora la señal de comando del motor. Se documenta esa estructura específica; no se sustituye por un observador de Luenberger de cuatro estados con entrada Bu.
+Usamos la estructura de la figura 3 de las especificaciones. Cada canal recibe un ángulo medido y calcula su posición y velocidad estimadas mediante tres integradores y las ganancias L, m y β. La señal de voltaje del motor no entra directamente en este observador.
 
-<figure class="technical-figure"><img src="{{ '/assets/img/pendulo/observador-consigna.png' | relative_url }}" alt="Figura 3: observador con tres integradores y ganancias l, m y beta"><figcaption>Diagrama original del PDF, página 5. La ganancia l del dibujo se representa como L en el script, para distinguirla de la distancia al centro de masa del péndulo.</figcaption></figure>
+<figure class="technical-figure"><a href="{{ '/assets/img/pendulo/04_estados_y_velocidades.png' | relative_url }}" target="_blank" rel="noopener"><img src="{{ '/assets/img/pendulo/04_estados_y_velocidades.png' | relative_url }}" alt="Dos canales del observador y vector de estados" loading="lazy" style="max-height:850px;width:auto"></a><figcaption>Observadores del brazo y del péndulo dentro de State X. Los ángulos medidos y las velocidades estimadas forman el vector de control.</figcaption></figure>
 
 ## 2. Ecuaciones obtenidas del diagrama
 
@@ -60,7 +60,7 @@ $$\begin{aligned}
 \dot z_\alpha&=\alpha-\hat\alpha-\beta z_\alpha.
 \end{aligned}$$
 
-El vector estimado sería x̂ = [θ̂, α̂, ω̂θ, ω̂α]ᵀ. Estos dos canales describen la implementación pendiente; **no están completos ni acoplados al LQR en el archivo recibido**.
+El vector estimado sería x̂ = [θ̂, α̂, ω̂θ, ω̂α]ᵀ. En la implementación usamos los ángulos medidos directamente y las velocidades de ambos observadores. Por tanto, el vector de realimentación es xf = [θ, α, ω̂θ, ω̂α]ᵀ.
 
 ## 5. Estabilidad y error de estimación
 
@@ -78,10 +78,12 @@ Con condiciones iniciales nulas, la transferencia de la medición a la posición
 
 $$\frac{\hat Q(s)}{Q(s)}=\frac{Ls+L\beta+m}{s^3+\beta s^2+Ls+L\beta+m}.$$
 
-Esta expresión permite analizar respuesta en frecuencia y sensibilidad al ruido. Aumentar a acelera la dinámica nominal, pero exige revisar ruido, amplitudes transitorias y resolución temporal. No se recibió comparación experimental de ganancias.
+Esta expresión permite analizar respuesta en frecuencia y sensibilidad al ruido. Aumentar a acelera la dinámica nominal, pero exige revisar ruido, amplitudes transitorias y resolución temporal.
 
-## 6. Estado real en Simulink
+## 6. Conexión en Simulink
 
-Dentro de `Qube With Pendulum` existe un canal con tres integradores y ganancias `L`, `beta`, `m`. La entrada positiva del sumador `Sum1` no tiene cable de medición. Tampoco hay conexión desde sus estimaciones al controlador. El LQR utiliza el subsistema `State X`, que calcula velocidades con derivación filtrada de polo −50.
+Dentro de `State X` implementamos dos canales iguales. El superior recibe θ y obtiene la velocidad del brazo; el inferior recibe α y obtiene la velocidad del péndulo. En cada canal, el segundo integrador proporciona la posición estimada para calcular el error con la medición.
 
-Para completar el entregable se requiere conectar la medición correspondiente, implementar el segundo canal si se estiman ambos ángulos, formar el vector en el orden correcto y registrar mediciones, estimaciones y errores. Estas conexiones deben validarse antes de atribuir funcionamiento al observador.
+La salida del primer integrador de cada canal corresponde a la velocidad estimada. El bloque `Mux` reúne θ, α y ambas velocidades en ese orden. Este vector vuelve al sumador del controlador LQR para calcular el voltaje del motor.
+
+La ganancia β actúa sobre el estado auxiliar z; no debe confundirse con la matriz K del controlador LQR. En los bloques, `Gain1` y `Gain4` usan la variable `beta` del script.

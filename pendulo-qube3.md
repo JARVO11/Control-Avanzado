@@ -9,33 +9,31 @@ permalink: /pendulo-qube3/
 <div class="project-page-header">
 <p class="portfolio-eyebrow">PROYECTO 01 · CONTROL AVANZADO</p>
 <h1>Péndulo invertido</h1>
-<p>Balance del péndulo rotatorio Quanser Qube-Servo 3 mediante retroalimentación LQR y diseño de un observador basado en la salida medida.</p>
+<p>Diseño e implementación de un controlador LQR con estimación de velocidades para el péndulo rotatorio Quanser Qube-Servo 3.</p>
 </div>
 
-## Objetivo y alcance
+## Nuestro proyecto
 
-Mantener el péndulo alrededor de la vertical superior y regular el brazo rotatorio. La puesta en operación se realiza levantando manualmente el péndulo hasta la región de balance; no se requiere una maniobra automática de swing-up. La consigna define una región cercana a la vertical de ±10°.
+En esta práctica desarrollamos un controlador para mantener el péndulo cerca de la vertical superior y regular la posición del brazo. Partimos del modelo matemático, calculamos las ganancias del LQR y del observador, y conectamos el sistema físico con Simulink mediante QUARC.
 
-<figure class="technical-figure"><img src="{{ '/assets/img/pendulo/qube3-consigna.png' | relative_url }}" alt="Plataforma Qube-Servo 3 con péndulo rotatorio" style="max-height:380px"><figcaption>Imagen de referencia extraída de la figura 2 de la consigna, página 3. No es una fotografía de la prueba del equipo.</figcaption></figure>
+<figure class="technical-figure"><a href="{{ '/assets/img/pendulo/Pendulo.jpg' | relative_url }}" target="_blank" rel="noopener"><img src="{{ '/assets/img/pendulo/Pendulo.jpg' | relative_url }}" alt="Montaje del péndulo Qube-Servo 3 en el laboratorio" loading="lazy" style="max-height:520px;width:auto"></a><figcaption>Montaje de laboratorio con el péndulo en posición vertical y el modelo de Simulink al fondo.</figcaption></figure>
 
-## Estado de la documentación
+## Del cálculo a la prueba
 
-| Elemento | Evidencia disponible |
+| Etapa | Elementos del proyecto |
 |---|---|
-| Modelo matemático y diseño LQR | Script con parámetros nominales, Q, R, K y polos |
-| Diseño del observador | Cálculo algebraico de L, m y β y diagrama en Simulink |
-| Integración del observador | Pendiente: la entrada de medición del observador está desconectada y sus salidas no alimentan el LQR |
-| Ensayos, gráficas y video | Pendientes de incorporar; no están incluidos en los archivos recibidos |
-| Equipo e integrantes | Pendiente de completar |
+| Modelado | Cuatro estados: dos ángulos y dos velocidades angulares. |
+| Diseño LQR | Matrices Q y R, ganancia K y polos del modelo en lazo cerrado. |
+| Estimación | Dos canales del observador, uno para el brazo y otro para el péndulo. |
+| Implementación | Ángulos de los encoders y velocidades estimadas para la realimentación. |
+| Prueba | Balance del péndulo y análisis de su sensibilidad a perturbaciones. |
 
-El análisis corresponde a los archivos recibidos, no a una ejecución del equipo físico. El proyecto todavía requiere evidencias e integración para demostrar todos los puntos de la consigna.
+## Documentación
 
-## Ruta de lectura
-
-1. [Requisitos y entregables]({{ '/pendulo-requisitos/' | relative_url }}).
+1. [Objetivos del proyecto]({{ '/pendulo-requisitos/' | relative_url }}).
 2. [Modelado del sistema]({{ '/pendulo-modelado/' | relative_url }}).
 3. [Diseño del controlador LQR]({{ '/pendulo-lqr/' | relative_url }}).
-4. [Ganancias y ecuaciones del observador]({{ '/pendulo-observador/' | relative_url }}).
+4. [Diseño y ecuaciones del observador]({{ '/pendulo-observador/' | relative_url }}).
 5. [Implementación en Simulink]({{ '/pendulo-simulink/' | relative_url }}).
-6. [Resultados y discusión]({{ '/pendulo-resultados/' | relative_url }}).
-7. [Archivos y reproducción]({{ '/pendulo-archivos/' | relative_url }}).
+6. [Resultados, video y conclusión]({{ '/pendulo-resultados/' | relative_url }}).
+7. [Archivos del proyecto]({{ '/pendulo-archivos/' | relative_url }}).

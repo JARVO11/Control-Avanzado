@@ -6,66 +6,58 @@ permalink: /pendulo-simulink/
 parent: "Péndulo Qube-Servo 3"
 ---
 
-
 # Implementación en Simulink
 
-## Vista disponible
+## Modelo general
 
-<figure class="technical-figure"><img src="{{ '/assets/img/pendulo/modelo-miniatura.png' | relative_url }}" alt="Miniatura original del modelo Simulink recibido" width="500"><figcaption>Miniatura incrustada en el SLX, de 500 × 500 píxeles. Permite reconocer la estructura general; no sustituye una exportación legible de los bloques.</figcaption></figure>
+Implementamos el control en `qs3_lqr_ctrl.slx`. El modelo compara la referencia del brazo con el vector de estados, calcula el voltaje mediante la ganancia K y lo envía al Qube-Servo 3. Las mediciones regresan al controlador para cerrar el lazo.
 
-## Flujo real del archivo recibido
+<figure class="technical-figure"><a href="{{ '/assets/img/pendulo/01_modelo_general.png' | relative_url }}" target="_blank" rel="noopener"><img src="{{ '/assets/img/pendulo/01_modelo_general.png' | relative_url }}" alt="Modelo general del controlador LQR en Simulink" loading="lazy" ></a><figcaption>Diagrama general: referencia, controlador LQR, habilitación de balance, equipo y señales de seguimiento.</figcaption></figure>
 
-| Etapa | Implementación observada |
-|---|---|
-| Referencia | `Signal Generator` → ganancia 15 → conversión a radianes → vector [θref, 0, 0, 0] |
-| Error y control | `Sum`: xref − xf; ganancia matricial `K` |
-| Activación | `MATLAB Function`: salida 1 cuando −15° ≤ α ≤ 15°; 0 en otro caso |
-| Selector de voltaje | `MultiPortSwitch`: selecciona 0 V o salida del LQR según activación |
-| Interfaz física | `Qube With Pendulum` → `Qube-Servo 3 - IO (QAL)` con bloques QUARC HIL |
-| Adquisición | Encoders → `Counts to Angles` → ángulos θ y α |
-| Estados de control | `State X` agrupa ángulos medidos y velocidades filtradas |
-| Observación | Canal de tres integradores dibujado en paralelo, actualmente sin medición ni realimentación al LQR |
-| Visualización | Scopes `Base (deg)`, `Pendulum (deg)`, `Vm (V)` y `Scope` de habilitación |
+El generador produce la referencia del brazo. La ganancia 15 la escala en grados y el bloque `D2R` la convierte a radianes. El vector de referencia es [θref, 0, 0, 0]ᵀ: buscamos la posición deseada del brazo, el péndulo vertical y velocidades nulas.
 
-## Encoders y signos
+El bloque `MATLAB Function` habilita el balance cuando el ángulo del péndulo está entre −15° y 15°. El selector aplica el voltaje del LQR dentro de esa región y 0 V fuera de ella. La referencia de 15° del brazo y el umbral de balance son parámetros distintos.
 
-El modelo usa 2048 cuentas por revolución (512 × 4) en la conversión configurada:
+## Conexión con el Qube-Servo 3
+
+<figure class="technical-figure"><a href="{{ '/assets/img/pendulo/02_planta_y_observador.png' | relative_url }}" target="_blank" rel="noopener"><img src="{{ '/assets/img/pendulo/02_planta_y_observador.png' | relative_url }}" alt="Interfaz del Qube-Servo 3 y procesamiento de estados" loading="lazy" ></a><figcaption>Qube With Pendulum: envío de voltaje, lectura de encoders, conversión a ángulos y cálculo de estados.</figcaption></figure>
+
+La interfaz `Qube-Servo 3 - IO (QAL)` envía el comando del motor y lee los encoders del brazo y del péndulo. `Counts to Angles` convierte las cuentas en radianes y `State X` combina los ángulos con las velocidades estimadas.
+
+La ganancia −1 antes del motor establece el sentido positivo de giro utilizado por el modelo. También se cambia el signo de la lectura del brazo para que la medición y el comando sigan la misma convención.
+
+## Conversión de encoders
+
+<figure class="technical-figure"><a href="{{ '/assets/img/pendulo/03_conversion_encoders.png' | relative_url }}" target="_blank" rel="noopener"><img src="{{ '/assets/img/pendulo/03_conversion_encoders.png' | relative_url }}" alt="Conversión de cuentas de encoder a ángulos" loading="lazy" ></a><figcaption>Conversión de las lecturas del brazo y del péndulo a radianes.</figcaption></figure>
+
+Usamos 2048 cuentas por revolución, equivalentes a 512 × 4. Las conversiones son:
 
 $$\theta=-n_\theta\frac{2\pi}{2048},\qquad
 \alpha=\operatorname{mod}\left(n_\alpha\frac{2\pi}{2048},2\pi\right)-\pi.$$
 
-Existe además una ganancia −1 antes del comando físico del motor, rotulada `For +ve CCW`. Estas ganancias implementan convenciones de sentido de giro y lectura. No deben eliminarse por considerarlas redundantes; su correspondencia con el hardware debe verificarse en laboratorio. El desplazamiento −π centra la lectura del péndulo en la vertical superior, según la inicialización del encoder.
+El bloque `mod` mantiene la lectura del péndulo dentro de una vuelta. El desplazamiento −π coloca el cero en la vertical superior, de acuerdo con la referencia del encoder.
 
-## Velocidades usadas por el LQR
+## Estados y velocidades
 
-Cada canal de `State X` contiene un integrador, un sumador y una ganancia 50:
+<figure class="technical-figure"><a href="{{ '/assets/img/pendulo/04_estados_y_velocidades.png' | relative_url }}" target="_blank" rel="noopener"><img src="{{ '/assets/img/pendulo/04_estados_y_velocidades.png' | relative_url }}" alt="Observadores de los dos ángulos dentro de State X" loading="lazy" style="max-height:850px;width:auto"></a><figcaption>Los observadores calculan las velocidades que se incorporan al vector de realimentación.</figcaption></figure>
 
-$$\dot z_f=50(q-z_f),\qquad\hat v_f=50(q-z_f),\qquad
-\frac{\hat V_f(s)}{Q(s)}=\frac{50s}{s+50}.$$
+Cada canal compara el ángulo medido con su estimación. Las ganancias L, m y β corrigen la dinámica de los integradores. La primera salida integrada representa la velocidad estimada y la segunda, la posición estimada.
 
-El vector resultante es xf = [θ, α, v̂f,θ, v̂f,α]ᵀ. Los ángulos pasan directamente; las velocidades son derivadas filtradas. También aparece un bloque `alpha_dot` con esa transferencia que está desconectado; los canales activos son los construidos con integradores.
+El controlador utiliza:
 
-## Configuración guardada
+$$x_f=\begin{bmatrix}\theta&\alpha&\hat\omega_\theta&\hat\omega_\alpha\end{bmatrix}^{T}.$$
 
-| Campo | Valor leído |
+Los dos primeros elementos provienen de los encoders; los dos últimos, de los observadores. Las ecuaciones y el cálculo de las ganancias se explican en [Diseño del observador]({{ '/pendulo-observador/' | relative_url }}).
+
+## Configuración de ejecución
+
+| Parámetro | Configuración |
 |---|---|
-| Versión que guardó el archivo | MATLAB/Simulink R2025b Update 2 |
+| Plataforma | Qube-Servo 3 con péndulo |
+| Entorno del modelo | MATLAB/Simulink R2026a |
 | Solver | ode1, Euler |
-| Paso fijo | 0.002 s, equivalente a 500 Hz de actualización nominal |
+| Paso fijo | 0.002 s |
 | Tiempo final | inf |
-| Target | quarc_win64.tlc |
-| Dependencias del hardware | QUARC Targets y bloques HIL de Quanser |
+| Interfaz de ejecución | QUARC para Windows de 64 bits |
 
-No se ejecutó el modelo en esta revisión. Abrirlo sin QUARC puede dejar referencias de biblioteca sin resolver. No se encontraron bloques explícitos `Saturation` en los sistemas inspeccionados: confirmar límites y protecciones de la interfaz HIL antes de las pruebas.
-
-## Diferencia con la región de balance solicitada
-
-La función guardada comprueba ±15°. La consigna describe ±10°. La copia descargable preserva el modelo recibido para mantener su trazabilidad; antes de la entrega final debe corregirse el umbral o justificarse la diferencia con el docente. La ganancia de referencia de 15 es un parámetro distinto del umbral de activación.
-
-## Imágenes de alta resolución
-
-El archivo [exportar_diagramas_pendulo.m]({{ '/assets/files/pendulo/exportar_diagramas_pendulo.m' | relative_url }}) exporta la vista principal, la interfaz/planta, la conversión de encoders y el cálculo de estados. Abre el modelo sin iniciar la ejecución física. Requiere MATLAB/Simulink y las bibliotecas del modelo para resolver todos los bloques.
-
-Las imágenes de bloques pueden generarse desde el SLX en MATLAB. Las gráficas de resultados y el video de laboratorio requieren las señales registradas o las evidencias originales; la miniatura y la configuración de un Scope no contienen esas muestras.
-
-Referencia: [MathWorks, exportación programática de diagramas](https://www.mathworks.com/help/simulink/ug/print-from-the-matlab-command-line.html).
+Los Scopes muestran el ángulo del brazo, el ángulo del péndulo, el voltaje del motor y la señal de habilitación. La visualización angular se convierte a grados; los cálculos del controlador se realizan en radianes.
