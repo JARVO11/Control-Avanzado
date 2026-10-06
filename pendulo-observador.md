@@ -29,7 +29,7 @@ $$\dot\eta=A_o\eta+B_oq,\qquad
 A_o=\begin{bmatrix}0&1&0\\-L&0&m\\-1&0&-\beta\end{bmatrix},\quad
 B_o=\begin{bmatrix}0\\L\\1\end{bmatrix}.$$
 
-z es un estado auxiliar filtrado del error. **No es directamente un torque ni una perturbación física identificada**; para llamarlo estimación de una perturbación debe justificarse la relación con la dinámica y sus unidades.
+z es un estado auxiliar filtrado del error que utilizamos para corregir la estimación. Su valor pertenece a la dinámica interna del observador; no representa directamente un torque ni una perturbación física medida.
 
 ## 3. Cálculo de ganancias
 
@@ -86,4 +86,4 @@ Dentro de `State X` implementamos dos canales iguales. El superior recibe θ y o
 
 La salida del primer integrador de cada canal corresponde a la velocidad estimada. El bloque `Mux` reúne θ, α y ambas velocidades en ese orden. Este vector vuelve al sumador del controlador LQR para calcular el voltaje del motor.
 
-La ganancia β actúa sobre el estado auxiliar z; no debe confundirse con la matriz K del controlador LQR. En los bloques, `Gain1` y `Gain4` usan la variable `beta` del script.
+La ganancia β actúa sobre el estado auxiliar z y forma parte del observador. La matriz K, por su parte, define la acción del controlador LQR. En los bloques, `Gain1` y `Gain4` usan la variable `beta` del script.

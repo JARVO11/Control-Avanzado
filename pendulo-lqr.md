@@ -64,7 +64,7 @@ $$x_{ref}=\begin{bmatrix}\theta_{ref}&0&0&0\end{bmatrix}^{T},\qquad u=K(x_{ref}-
 
 donde xf contiene los ángulos medidos y las velocidades estimadas por el observador. Por eso el bloque con ganancia `K` se llama `u = -K*x`: el signo negativo procede del sumador previo cuando la referencia es cero.
 
-Para una referencia de posición constante, el vector anterior es compatible con el equilibrio del modelo. Si la referencia varía en el tiempo, aquí no se incorporan sus derivadas ni una prealimentación dinámica; no debe afirmarse seguimiento exacto por el simple uso del LQR. El generador guarda frecuencia **0.125 rad/s** y una ganancia externa de **15** antes de convertir de grados a radianes. La ganancia de 15 escala la referencia del brazo y es independiente del umbral que activa el balance.
+Para una referencia de posición constante, el vector anterior es compatible con el equilibrio del modelo. Si la referencia varía en el tiempo, en este diseño no incorporamos sus derivadas ni una prealimentación dinámica. Por ello, el LQR por sí solo no garantiza un seguimiento exacto. El generador guarda frecuencia **0.125 rad/s** y una ganancia externa de **15** antes de convertir de grados a radianes. La ganancia de 15 escala la referencia del brazo y es independiente del umbral que activa el balance.
 
 ## 5. Ajuste en el laboratorio
 
