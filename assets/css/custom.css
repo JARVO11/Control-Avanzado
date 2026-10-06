@@ -48,3 +48,9 @@ a:focus-visible,button:focus-visible{outline:3px solid #27a487;outline-offset:3p
 .custom-footer{margin-top:3rem;border-top:1px solid var(--line);padding-top:1rem;font-size:.8rem;color:var(--muted)}.custom-footer p{margin:.5rem 0}.custom-footer a{color:var(--teal)}
 @media(max-width:1000px){.course-hero{grid-template-columns:1fr;gap:1.3rem}.lab-panel{display:none}}
 @media(max-width:600px){.main-content-wrap{padding-top:1.6rem}.course-hero h1{font-size:3.2rem}.course-strip>div{padding:.85rem .55rem}.course-strip strong{font-size:.83rem}.course-strip span{font-size:.69rem}.project-feature{grid-template-columns:1fr;gap:.2rem;padding:1.25rem}.project-feature__number{font-size:1.4rem}.project-feature h3{font-size:1.65rem}.chapter-list{grid-template-columns:1fr}.chapter-list a:nth-child(odd){border-right:0}.section-heading{align-items:start}.section-heading>span{max-width:6rem;text-align:right}}
+
+/* Imágenes y video del laboratorio */
+.lab-panel img{width:100%;max-width:100%;height:330px;max-height:none;object-fit:cover;object-position:center 57%}
+.video-figure video{display:block;width:auto;max-width:100%;max-height:620px;margin:0 auto;background:#102f2b;border-radius:5px}
+.technical-figure a{display:block}.technical-figure a:focus-visible{outline-offset:4px}
+@media(max-width:600px){.video-figure video{width:100%;height:auto;max-height:70vh}.technical-figure{padding:.6rem}.custom-footer p{font-size:.8rem}}
